@@ -1,0 +1,37 @@
+﻿services:
+  geoapi:
+    image: geoapi
+    build:
+      context: .
+      dockerfile: GeoApi/Dockerfile
+
+  geoapi-1:
+    image: geoapi-1
+    build:
+      context: .
+      dockerfile: GeoApi/Dockerfile
+
+  webapplication1:
+    image: webapplication1
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+
+  migration:
+    image: migration
+    build:
+      context: .
+      dockerfile: Migration/Dockerfile
+
+  migrations:
+    image: migrations
+    build:
+      context: .
+      dockerfile: Migrations/Dockerfile
+
+  tests:
+    image: tests
+    build:
+      context: .
+      dockerfile: Tests/Dockerfile
+
