@@ -1,5 +1,4 @@
-﻿using Microsoft.OpenApi;
-using NetTopologySuite.Geometries;
+using Microsoft.OpenApi;
 
 
 namespace GeoApi.Api.Configuration;

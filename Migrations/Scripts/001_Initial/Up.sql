@@ -1,14 +1,24 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS ltree;
 
-CREATE TYPE public.location_data AS (
-    point GEOGRAPHY(Point, 4326)
-);
-
 CREATE TABLE public.resources(
     id SERIAL PRIMARY KEY,
-    resource_branch LTREE NOT NULL
+    resource_branch LTREE NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_in INTERVAL NOT NULL DEFAULT '0 seconds'::INTERVAL
 );
+
+CREATE FUNCTION public.set_updated_at() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_resources_updated_at
+    BEFORE UPDATE ON public.resources
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 CREATE TABLE public.locations(
     id SERIAL PRIMARY KEY,

@@ -1,4 +1,4 @@
-﻿using FluentMigrator.Runner;
+using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -13,18 +13,11 @@ var configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
     
-var connectionString = configuration["connection"] ?? configuration["DB_CONNECTION"] ?? configuration.GetConnectionString("Default");
+var connectionString = configuration["DB_CONNECTION"] ?? configuration.GetConnectionString("Default");
 
 if (string.IsNullOrEmpty(connectionString))
 {
     throw new Exception("Could not find connection string");
-}
-
-var resources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-Console.WriteLine("Доступные ресурсы:");
-foreach (var resource in resources)
-{
-    Console.WriteLine("- " + resource);
 }
 
 var serviceCollection = new ServiceCollection()

@@ -1,37 +1,59 @@
-﻿services:
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-geoapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-geoapi}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${POSTGRES_USER:-geoapi} -d ${POSTGRES_DB:-geoapi}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  migrations:
+    image: geoapi-migrations
+    build:
+      context: .
+      dockerfile: Migrations/Dockerfile
+    environment:
+      DB_CONNECTION: "Host=postgres;Port=5432;Username=${POSTGRES_USER:-geoapi};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB:-geoapi}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   geoapi:
     image: geoapi
     build:
       context: .
       dockerfile: GeoApi/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_HTTP_PORTS: 8080
+      DatabaseSettings__ConnectionString: "Host=postgres;Port=5432;Username=${POSTGRES_USER:-geoapi};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB:-geoapi}"
+      DatabaseSettings__CommandTimeout: 30
+      DatabaseSettings__Logging: "false"
+    ports:
+      - "${GEOAPI_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
 
-  geoapi-1:
-    image: geoapi-1
-    build:
-      context: .
-      dockerfile: GeoApi/Dockerfile
-
-  webapplication1:
-    image: webapplication1
-    build:
-      context: .
-      dockerfile: WebApplication1/Dockerfile
-
-  migration:
-    image: migration
-    build:
-      context: .
-      dockerfile: Migration/Dockerfile
-
-  migrations:
-    image: migrations
-    build:
-      context: .
-      dockerfile: Migrations/Dockerfile
-
-  tests:
-    image: tests
-    build:
-      context: .
-      dockerfile: Tests/Dockerfile
-
+volumes:
+  postgres-data:

@@ -5,15 +5,19 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration)
     .AddApplication()
     .AddApiLayer();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
+app.UseHttpsRedirection();
+
 app.UseRouting();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 if (app.Environment.IsDevelopment())
 {
@@ -21,6 +25,6 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
-
 app.Run();
+
+public partial class Program;
