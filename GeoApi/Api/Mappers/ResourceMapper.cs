@@ -38,29 +38,18 @@ public static partial class ResourceMapper
 
     public static partial IReadOnlyList<ResourceResponse> MapToResponses(this IReadOnlyList<ResourceDto> resources);
 
-    public static ResourcesByIdsQueryDto MapToQueryDto(this GetResourcesByIdsQuery query)
-    {
-        return new ResourcesByIdsQueryDto(query.Ids, query.IncludeExpired);
-    }
+    public static partial ResourcesByIdsQueryDto MapToQueryDto(this GetResourcesByIdsQuery query);
 
-    public static BulkUnlinkResourceLocationsDto MapToUnlinkDto(
+    public static partial BulkUnlinkResourceLocationsDto MapToUnlinkDto(
         this UnlinkResourceLocationsQuery query,
-        int resourceId)
-    {
-        return new BulkUnlinkResourceLocationsDto(resourceId, query.LocationIds);
-    }
+        int resourceId);
 
-    public static UpdateResourceDto MapToUpdateDto(this UpdateResourceMessage message, int id)
-    {
-        return new UpdateResourceDto(id, message.ResourceBranch, ToTimeSpan(message.ExpiresInSeconds));
-    }
+    [MapProperty(nameof(UpdateResourceMessage.ExpiresInSeconds), nameof(UpdateResourceDto.ExpiresIn))]
+    public static partial UpdateResourceDto MapToUpdateDto(this UpdateResourceMessage message, int id);
 
-    public static ReplaceResourceLocationsDto MapToReplacementDto(
+    public static partial ReplaceResourceLocationsDto MapToReplacementDto(
         this ReplaceResourceLocationsMessage message,
-        int resourceId)
-    {
-        return new ReplaceResourceLocationsDto(resourceId, message.Points.MapToPointDtos());
-    }
+        int resourceId);
 
     public static partial ResourcePageQueryDto MapToQueryDto(this GetResourcesPageQuery query);
 
@@ -70,18 +59,11 @@ public static partial class ResourceMapper
 
     public static partial ResourceAncestorsQueryDto MapToQueryDto(this GetResourceAncestorsQuery query);
 
-    public static ResourceLocationsQueryDto MapToQueryDto(this GetResourceLocationsQuery query, int resourceId)
-    {
-        return new ResourceLocationsQueryDto(resourceId, query.LastId, query.Limit, query.IncludeExpired);
-    }
+    public static partial ResourceLocationsQueryDto MapToQueryDto(this GetResourceLocationsQuery query, int resourceId);
 
-    public static ResourceByIdQueryDto MapToQueryDto(this GetResourceByIdQuery query, int id)
-    {
-        return new ResourceByIdQueryDto(id, query.IncludeExpired);
-    }
+    public static partial ResourceByIdQueryDto MapToQueryDto(this GetResourceByIdQuery query, int id);
 
-    public static ResourcesByLocationIdQueryDto MapToQueryDto(this GetResourcesByLocationIdQuery query, int locationId)
-    {
-        return new ResourcesByLocationIdQueryDto(locationId, query.LastId, query.Limit, query.IncludeExpired);
-    }
+    public static partial ResourcesByLocationIdQueryDto MapToQueryDto(
+        this GetResourcesByLocationIdQuery query,
+        int locationId);
 }

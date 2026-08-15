@@ -12,100 +12,35 @@ public static partial class ResourceMapper
 
     public static partial IEnumerable<ResourceDto> MapToResourceDtos(this IEnumerable<ResourceEntity> resources);
 
-    public static GetResourceByIdParameters MapToParameters(this ResourceByIdQueryDto query)
-    {
-        return new GetResourceByIdParameters
-        {
-            Id = query.Id,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    public static partial GetResourceByIdParameters MapToParameters(this ResourceByIdQueryDto query);
 
-    public static UpdateResourceParameters MapToParameters(this UpdateResourceDto update)
-    {
-        return new UpdateResourceParameters
-        {
-            Id = update.Id,
-            ResourceBranch = update.ResourceBranch,
-            ExpiresIn = update.ExpiresIn
-        };
-    }
+    public static partial UpdateResourceParameters MapToParameters(this UpdateResourceDto update);
 
-    public static GetResourcesByIdsParameters MapToParameters(this ResourcesByIdsQueryDto query)
-    {
-        return new GetResourcesByIdsParameters
-        {
-            Ids = query.Ids,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    public static partial GetResourcesByIdsParameters MapToParameters(this ResourcesByIdsQueryDto query);
 
-    public static GetResourceAncestorsParameters MapToParameters(this ResourceAncestorsQueryDto query, int limit)
-    {
-        return new GetResourceAncestorsParameters
-        {
-            BranchPath = query.BranchPath,
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    [MapperIgnoreSource(nameof(ResourceAncestorsQueryDto.Limit))]
+    public static partial GetResourceAncestorsParameters MapToParameters(
+        this ResourceAncestorsQueryDto query,
+        int limit);
 
-    public static GetResourcesByLocationIdParameters MapToParameters(this ResourcesByLocationIdQueryDto query, int limit)
-    {
-        return new GetResourcesByLocationIdParameters
-        {
-            LocationId = query.LocationId,
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    [MapperIgnoreSource(nameof(ResourcesByLocationIdQueryDto.Limit))]
+    public static partial GetResourcesByLocationIdParameters MapToParameters(
+        this ResourcesByLocationIdQueryDto query,
+        int limit);
 
-    public static GetResourcesPageParameters MapToParameters(this ResourcePageQueryDto query, int limit)
-    {
-        return new GetResourcesPageParameters
-        {
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    [MapperIgnoreSource(nameof(ResourcePageQueryDto.Limit))]
+    public static partial GetResourcesPageParameters MapToParameters(this ResourcePageQueryDto query, int limit);
 
-    public static GetResourceSubtreeParameters MapToParameters(this ResourceSubtreeQueryDto query, int limit)
-    {
-        return new GetResourceSubtreeParameters
-        {
-            BranchPath = query.BranchPath,
-            MaxDepth = query.MaxDepth,
-            IncludeSelf = query.IncludeSelf,
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    [MapperIgnoreSource(nameof(ResourceSubtreeQueryDto.Limit))]
+    public static partial GetResourceSubtreeParameters MapToParameters(this ResourceSubtreeQueryDto query, int limit);
 
-    public static GetResourcesByBranchPatternParameters MapToParameters(
+    [MapperIgnoreSource(nameof(ResourceBranchPatternQueryDto.Limit))]
+    public static partial GetResourcesByBranchPatternParameters MapToParameters(
         this ResourceBranchPatternQueryDto query,
-        int limit)
-    {
-        return new GetResourcesByBranchPatternParameters
-        {
-            Pattern = query.Pattern,
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+        int limit);
 
-    public static GetResourceLocationsByIdParameters MapToParameters(this ResourceLocationsQueryDto query, int limit)
-    {
-        return new GetResourceLocationsByIdParameters
-        {
-            ResourceId = query.ResourceId,
-            LastId = query.LastId,
-            Limit = limit,
-            IncludeExpired = query.IncludeExpired
-        };
-    }
+    [MapperIgnoreSource(nameof(ResourceLocationsQueryDto.Limit))]
+    public static partial GetResourceLocationsByIdParameters MapToParameters(
+        this ResourceLocationsQueryDto query,
+        int limit);
 }

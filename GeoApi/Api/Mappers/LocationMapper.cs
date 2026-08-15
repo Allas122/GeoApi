@@ -20,10 +20,7 @@ public static partial class LocationMapper
 
     public static partial LocationResponse MapToResponse(this ApplicationLocationDto location);
 
-    public static UpdateLocationDto MapToUpdateDto(this UpdateLocationMessage message, int id)
-    {
-        return new UpdateLocationDto(id, message.Point!.MapToPointDto());
-    }
+    public static partial UpdateLocationDto MapToUpdateDto(this UpdateLocationMessage message, int id);
 
     public static partial GridClusterResponse MapToResponse(this ApplicationGridClusterDto cluster);
 
