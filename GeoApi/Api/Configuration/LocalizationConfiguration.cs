@@ -13,9 +13,13 @@ public static class LocalizationConfiguration
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict; 
+                    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
                 });
-        services.Configure<RouteOptions>(options => 
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        });
+        services.Configure<RouteOptions>(options =>
         {
             options.LowercaseUrls = true;
             options.LowercaseQueryStrings = true;

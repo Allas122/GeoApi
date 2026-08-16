@@ -48,6 +48,22 @@ public class OpenApiDocumentTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Document_DescribesIntegersWithoutStringUnion()
+    {
+        JsonElement document = await ApiJson.ReadAsync(await _client.GetAsync("/openapi/v1.json"));
+        JsonElement expiresInSeconds = document
+            .GetProperty("components")
+            .GetProperty("schemas")
+            .GetProperty("ResourceResponse")
+            .GetProperty("properties")
+            .GetProperty("expiresInSeconds");
+
+        Assert.Equal("integer", expiresInSeconds.GetProperty("type").GetString());
+        Assert.Equal("int64", expiresInSeconds.GetProperty("format").GetString());
+        Assert.False(expiresInSeconds.TryGetProperty("pattern", out _));
+    }
+
+    [Fact]
     public async Task ApiReference_IsAvailableInDevelopment()
     {
         HttpResponseMessage response = await _client.GetAsync("/scalar/v1");
