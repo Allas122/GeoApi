@@ -116,6 +116,41 @@ public class DomainExceptionHandlerTests
     }
 
     [Fact]
+    public async Task Handles_UnmappedDomainExceptionAs500()
+    {
+        (DomainExceptionHandler handler, DefaultHttpContext context, MemoryStream body) = CreateSut();
+
+        bool handled = await handler.TryHandleAsync(
+            context,
+            new UnmappedDomainException("something went sideways"),
+            CancellationToken.None);
+
+        Assert.True(handled);
+        Assert.Equal(StatusCodes.Status500InternalServerError, context.Response.StatusCode);
+
+        JsonElement problem = ReadBody(body);
+        Assert.Equal("Server Error", problem.GetProperty("title").GetString());
+    }
+
+    [Fact]
+    public async Task Handles_ExceptionWithInnerCauseAs400()
+    {
+        (DomainExceptionHandler handler, DefaultHttpContext context, MemoryStream body) = CreateSut();
+
+        bool handled = await handler.TryHandleAsync(
+            context,
+            new InvalidRequestException("The request contains a value the database rejected.", new Exception("42601")),
+            CancellationToken.None);
+
+        Assert.True(handled);
+        Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
+
+        JsonElement problem = ReadBody(body);
+        Assert.Equal("Bad Request", problem.GetProperty("title").GetString());
+        Assert.DoesNotContain("42601", problem.GetProperty("detail").GetString());
+    }
+
+    [Fact]
     public async Task Ignores_NonDomainExceptions()
     {
         (DomainExceptionHandler handler, DefaultHttpContext context, _) = CreateSut();
@@ -127,4 +162,6 @@ public class DomainExceptionHandlerTests
 
         Assert.False(handled);
     }
+
+    private sealed class UnmappedDomainException(string message) : GeoApiException(message);
 }

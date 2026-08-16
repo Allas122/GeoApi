@@ -2,7 +2,7 @@ using GeoApi.Domain.Geometry;
 using GeoApi.Domain.Entities;
 using GeoApi.Domain.ParameterObjects.Resource;
 
-namespace GeoApi.IntegrationTests;
+namespace GeoApi.IntegrationTests.Persistence;
 
 [Collection(PostgresCollection.Name)]
 public class BulkCreateTests(PostgresFixture fixture) : IntegrationTest(fixture)

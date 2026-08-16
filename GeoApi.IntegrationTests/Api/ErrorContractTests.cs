@@ -116,6 +116,24 @@ public class ErrorContractTests(PostgresFixture fixture) : ApiIntegrationTest(fi
     }
 
     [Fact]
+    public async Task MovingLocationToFreePoint_ReturnsUpdatedCoordinates()
+    {
+        int locationId = await CreateLocationAsync(12.0, 22.0);
+
+        HttpResponseMessage response = await ApiJson.PutAsync(
+            Client,
+            $"/location/{locationId}",
+            new { point = ApiJson.Point(13.5, 23.5) });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        JsonElement updated = await ApiJson.ReadAsync(response);
+        Assert.Equal(locationId, updated.GetProperty("id").GetInt32());
+        Assert.Equal(13.5, updated.GetProperty("point").GetProperty("longitude").GetDouble(), 6);
+        Assert.Equal(23.5, updated.GetProperty("point").GetProperty("latitude").GetDouble(), 6);
+    }
+
+    [Fact]
     public async Task Health_ReportsHealthyWithLiveDatabase()
     {
         HttpResponseMessage response = await Client.GetAsync("/health");

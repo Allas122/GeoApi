@@ -227,3 +227,6 @@ AppPackages/
 
 # Local compose secrets
 .env
+
+# Serilog file sink output
+logs/

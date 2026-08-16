@@ -5,7 +5,7 @@ using GeoApi.Domain.ParameterObjects.Location;
 using GeoApi.Domain.ParameterObjects.Resource;
 using Npgsql;
 
-namespace GeoApi.IntegrationTests;
+namespace GeoApi.IntegrationTests.Persistence;
 
 [Collection(PostgresCollection.Name)]
 public class ErrorTranslationTests(PostgresFixture fixture) : IntegrationTest(fixture)

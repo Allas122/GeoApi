@@ -2,7 +2,6 @@ using System.Globalization;
 using FluentValidation;
 using GeoApi.Api.Configuration;
 using GeoApi.Api.Errors;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace GeoApi.Api;
@@ -11,6 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiLayer(this IServiceCollection services)
     {
+        services.AddLoggingConfiguration();
         services.AddLocalizationConfiguration();
         services.AddOpenApiConfiguration();
         services.AddValidationConfiguration();
@@ -33,14 +33,7 @@ public static class DependencyInjection
 
         services.AddFluentValidationAutoValidation(configuration =>
         {
-            configuration.DisableBuiltInModelValidation = false;
-            configuration.ValidationStrategy = ValidationStrategy.All;
-            configuration.EnableBodyBindingSourceAutomaticValidation = true;
-            configuration.EnableQueryBindingSourceAutomaticValidation = true;
-            configuration.EnablePathBindingSourceAutomaticValidation = true;
             configuration.EnableFormBindingSourceAutomaticValidation = false;
-            configuration.EnableCustomBindingSourceAutomaticValidation = false;
-            configuration.EnableNullBindingSourceAutomaticValidation = false;
         });
 
         return services;

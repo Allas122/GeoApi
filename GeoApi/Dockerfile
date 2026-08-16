@@ -20,6 +20,9 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./GeoApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+USER root
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/logs && chown -R $APP_UID /app/logs
+USER $APP_UID
 ENTRYPOINT ["dotnet", "GeoApi.dll"]

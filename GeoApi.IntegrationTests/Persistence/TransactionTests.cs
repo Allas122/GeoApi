@@ -4,7 +4,7 @@ using GeoApi.Domain.ParameterObjects.Resource;
 using GeoApi.Domain.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GeoApi.IntegrationTests;
+namespace GeoApi.IntegrationTests.Persistence;
 
 [Collection(PostgresCollection.Name)]
 public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture)
@@ -50,6 +50,43 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
         }
 
         Assert.NotNull(await Resources.GetByIdAsync(new GetResourceByIdParameters { Id = resourceId }));
+    }
+
+    [Fact]
+    public async Task Transaction_ExplicitRollbackDiscardsChangesAndClosesTheScope()
+    {
+        int resourceId;
+
+        await using (AsyncServiceScope scope = NewScope())
+        {
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var resources = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
+
+            await using ITransactionScope transaction = await unitOfWork.BeginTransactionAsync();
+            resourceId = await resources.CreateAsync(new ResourceEntity
+            {
+                ResourceBranch = "explicit.rollback",
+                ExpiresIn = TimeSpan.Zero
+            });
+
+            await transaction.RollbackAsync();
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => transaction.RollbackAsync());
+            await Assert.ThrowsAsync<InvalidOperationException>(() => transaction.CommitAsync());
+        }
+
+        Assert.Null(await Resources.GetByIdAsync(new GetResourceByIdParameters { Id = resourceId }));
+    }
+
+    [Fact]
+    public async Task Transaction_CannotBeStartedTwiceInOneScope()
+    {
+        await using AsyncServiceScope scope = NewScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+        await using ITransactionScope transaction = await unitOfWork.BeginTransactionAsync();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => unitOfWork.BeginTransactionAsync());
     }
 
     [Fact]

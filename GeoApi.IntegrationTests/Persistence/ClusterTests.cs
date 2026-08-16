@@ -5,7 +5,7 @@ using GeoApi.Domain.Geometry;
 using GeoApi.Domain.Entities;
 using GeoApi.Domain.ParameterObjects.Location;
 
-namespace GeoApi.IntegrationTests;
+namespace GeoApi.IntegrationTests.Persistence;
 
 [Collection(PostgresCollection.Name)]
 public class ClusterTests(PostgresFixture fixture) : IntegrationTest(fixture)
