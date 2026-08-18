@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GeoApi.Api.Controllers;
 
 [ApiController]
-[Route("resource")]
+[Route("api/resource")]
 public class ResourceController(IResourceService resourceService) : ControllerBase
 {
     [HttpPost("batch")]

@@ -4,8 +4,8 @@ using System.Net.Http.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class CancellationContractTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class CancellationContractTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     private const string DeadDatabase =
         "Host=127.0.0.1;Port=1;Username=geoapi;Password=localdev;Database=geoapi;Timeout=1;Command Timeout=1";

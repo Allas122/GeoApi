@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class CancellationTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class CancellationTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     [Fact]
     public async Task CreateOrGet_WithAlreadyCancelledToken_ThrowsAndWritesNothing()

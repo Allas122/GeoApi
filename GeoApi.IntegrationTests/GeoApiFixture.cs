@@ -9,7 +9,7 @@ using Testcontainers.PostgreSql;
 
 namespace GeoApi.IntegrationTests;
 
-public class PostgresFixture : IAsyncLifetime
+public class GeoApiFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
         .WithImage("postgis/postgis:17-3.5")
@@ -83,28 +83,36 @@ public class PostgresFixture : IAsyncLifetime
 
     private async Task ApplySchemaAsync()
     {
-        string path = Path.Combine(AppContext.BaseDirectory, "Schema", "Up.sql");
-        string schema = await File.ReadAllTextAsync(path);
+        string root = Path.Combine(AppContext.BaseDirectory, "Schema");
+        string[] scripts = Directory
+            .GetFiles(root, "Up.sql", SearchOption.AllDirectories)
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.NotEmpty(scripts);
 
         await using DbConnection connection = await OpenAsync();
-        await connection.ExecuteAsync(schema);
+        foreach (string script in scripts)
+        {
+            await connection.ExecuteAsync(await File.ReadAllTextAsync(script));
+        }
     }
 }
 
 [CollectionDefinition(Name)]
-public class PostgresCollection : ICollectionFixture<PostgresFixture>
+public class GeoApiCollection : ICollectionFixture<GeoApiFixture>
 {
-    public const string Name = "postgres";
+    public const string Name = "geoapi";
 }
 
 public abstract class IntegrationTest : IAsyncLifetime
 {
-    protected IntegrationTest(PostgresFixture fixture)
+    protected IntegrationTest(GeoApiFixture fixture)
     {
         Fixture = fixture;
     }
 
-    protected PostgresFixture Fixture { get; }
+    protected GeoApiFixture Fixture { get; }
 
     private AsyncServiceScope _scope;
 
@@ -131,12 +139,12 @@ public abstract class IntegrationTest : IAsyncLifetime
 
 public abstract class ApiIntegrationTest : IAsyncLifetime
 {
-    protected ApiIntegrationTest(PostgresFixture fixture)
+    protected ApiIntegrationTest(GeoApiFixture fixture)
     {
         Fixture = fixture;
     }
 
-    protected PostgresFixture Fixture { get; }
+    protected GeoApiFixture Fixture { get; }
 
     protected HttpClient Client { get; private set; } = null!;
 

@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class ResourceLifecycleTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class ResourceLifecycleTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     [Fact]
     public async Task CreateReadUpdateDelete_WalksTheWholeContract()

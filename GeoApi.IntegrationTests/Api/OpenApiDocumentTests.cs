@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class OpenApiDocumentTests(PostgresFixture fixture) : IAsyncLifetime
+[Collection(GeoApiCollection.Name)]
+public class OpenApiDocumentTests(GeoApiFixture fixture) : IAsyncLifetime
 {
     private GeoApiFactory _factory = null!;
     private HttpClient _client = null!;

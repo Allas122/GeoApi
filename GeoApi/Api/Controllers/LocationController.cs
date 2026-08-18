@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GeoApi.Api.Controllers;
 
 [ApiController]
-[Route("location")]
+[Route("api/location")]
 public class LocationController(ILocationService locationService) : ControllerBase
 {
     [HttpPost]

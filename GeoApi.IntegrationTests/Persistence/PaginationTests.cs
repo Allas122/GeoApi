@@ -3,8 +3,8 @@ using GeoApi.Domain.ParameterObjects.Resource;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class PaginationTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class PaginationTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     private async Task<IReadOnlyList<int>> SeedAsync(params string[] branches)
     {

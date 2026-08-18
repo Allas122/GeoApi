@@ -14,13 +14,13 @@ public static class CancellationProbe
             transaction: transaction);
     }
 
-    public static async Task<int> CountLocationsAsync(PostgresFixture fixture)
+    public static async Task<int> CountLocationsAsync(GeoApiFixture fixture)
     {
         await using DbConnection connection = await fixture.OpenAsync();
         return await connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM public.locations");
     }
 
-    public static async Task<int> CountBlockedInsertsAsync(PostgresFixture fixture)
+    public static async Task<int> CountBlockedInsertsAsync(GeoApiFixture fixture)
     {
         await using DbConnection connection = await fixture.OpenAsync();
         return await connection.ExecuteScalarAsync<int>(
@@ -34,7 +34,7 @@ public static class CancellationProbe
             """);
     }
 
-    public static async Task WaitForBlockedInsertAsync(PostgresFixture fixture, bool expected)
+    public static async Task WaitForBlockedInsertAsync(GeoApiFixture fixture, bool expected)
     {
         DateTime deadline = DateTime.UtcNow + WaitTimeout;
 

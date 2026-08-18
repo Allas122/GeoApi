@@ -2,8 +2,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class SerializationTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class SerializationTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     private async Task<int> SeedResourceAsync(string branch = "root.serialize", params object[] points)
     {

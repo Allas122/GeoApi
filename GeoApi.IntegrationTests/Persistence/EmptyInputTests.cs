@@ -4,8 +4,8 @@ using GeoApi.Domain.ParameterObjects.Resource;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class EmptyInputTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class EmptyInputTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     [Fact]
     public async Task BulkCreateOrGetAsync_WithNoPoints_ReturnsEmpty()

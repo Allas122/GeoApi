@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class ValidationTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class ValidationTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     [Fact]
     public async Task MalformedJsonBody_ReturnsSingleBadRequest()

@@ -1,13 +1,16 @@
+using System.Data.Common;
+using Dapper;
 using GeoApi.Domain.Geometry;
 using GeoApi.Domain.Entities;
 using GeoApi.Domain.ParameterObjects.Resource;
 using GeoApi.Domain.Repositories;
+using GeoApi.Infrastructure.Database.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class TransactionTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     [Fact]
     public async Task Transaction_RollsBackWhenScopeIsDisposedWithoutCommit()
@@ -90,7 +93,7 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
     }
 
     [Fact]
-    public async Task Transaction_SpansMultipleRepositories()
+    public async Task Transaction_RollsBackEveryRepositoryWhenScopeIsDisposedWithoutCommit()
     {
         await using (AsyncServiceScope scope = NewScope())
         {
@@ -109,12 +112,47 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
             await resources.BulkLinkPairsAsync([resourceId], locationIds);
         }
 
-        await using System.Data.Common.DbConnection connection = await Fixture.OpenAsync();
-        int locationCount = await Dapper.SqlMapper.ExecuteScalarAsync<int>(
-            connection,
-            "SELECT COUNT(*) FROM public.locations");
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM public.locations"));
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM public.resources"));
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM public.resource_location"));
+    }
 
-        Assert.Equal(0, locationCount);
+    [Fact]
+    public async Task Transaction_CommitsEveryRepositoryAsOneUnit()
+    {
+        int resourceId;
+        int locationId;
+
+        await using (AsyncServiceScope scope = NewScope())
+        {
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var resources = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
+            var locations = scope.ServiceProvider.GetRequiredService<ILocationRepository>();
+
+            await using ITransactionScope transaction = await unitOfWork.BeginTransactionAsync();
+
+            resourceId = await resources.CreateAsync(new ResourceEntity
+            {
+                ResourceBranch = "shared.commit",
+                ExpiresIn = TimeSpan.Zero
+            });
+            int[] locationIds = (await locations.BulkCreateOrGetAsync([new Coordinate(6.0, 6.0)])).ToArray();
+            locationId = locationIds[0];
+            await resources.BulkLinkPairsAsync([resourceId], locationIds);
+
+            await transaction.CommitAsync();
+        }
+
+        Assert.NotNull(await Resources.GetByIdAsync(new GetResourceByIdParameters { Id = resourceId }));
+        Assert.NotNull(await Locations.GetByIdAsync(locationId));
+
+        int[] linked = (await Resources.GetLocationsAsync(new GetResourceLocationsByIdParameters
+        {
+            ResourceId = resourceId,
+            Limit = 10
+        })).Select(location => location.Id).ToArray();
+
+        Assert.Equal([locationId], linked);
     }
 
     [Fact]
@@ -132,9 +170,8 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
         Assert.False(await Resources.DeleteAsync(resourceId));
         Assert.Null(await Resources.GetByIdAsync(new GetResourceByIdParameters { Id = resourceId }));
 
-        await using System.Data.Common.DbConnection connection = await Fixture.OpenAsync();
-        int links = await Dapper.SqlMapper.ExecuteScalarAsync<int>(
-            connection,
+        await using DbConnection connection = await Fixture.OpenAsync();
+        int links = await connection.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM public.resource_location WHERE resource_id = @resourceId",
             new { resourceId });
 
@@ -145,8 +182,11 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
     public async Task SequentialCallsInOneScope_ShareASingleConnection()
     {
         await using AsyncServiceScope scope = NewScope();
+        var session = scope.ServiceProvider.GetRequiredService<IDbSession>();
         var resources = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
         var locations = scope.ServiceProvider.GetRequiredService<ILocationRepository>();
+
+        var backendPids = new List<int>();
 
         for (int i = 0; i < 10; i++)
         {
@@ -156,13 +196,37 @@ public class TransactionTests(PostgresFixture fixture) : IntegrationTest(fixture
                 ExpiresIn = TimeSpan.Zero
             });
             await locations.CreateOrGetAsync(new Coordinate(i, i));
+
+            await using DbConnectionLease lease = await session.LeaseAsync();
+            backendPids.Add(await lease.Connection.ExecuteScalarAsync<int>("SELECT pg_backend_pid()"));
         }
 
-        await using System.Data.Common.DbConnection connection = await Fixture.OpenAsync();
-        int backends = await Dapper.SqlMapper.ExecuteScalarAsync<int>(
-            connection,
-            "SELECT COUNT(*) FROM pg_stat_activity WHERE datname = current_database() AND state = 'idle'");
+        Assert.Equal(10, backendPids.Count);
+        Assert.Single(backendPids.Distinct());
+    }
 
-        Assert.True(backends < 10);
+    [Fact]
+    public async Task SeparateScopes_DoNotShareAConnection()
+    {
+        await using AsyncServiceScope first = NewScope();
+        await using AsyncServiceScope second = NewScope();
+
+        int firstPid = await BackendPidAsync(first);
+        int secondPid = await BackendPidAsync(second);
+
+        Assert.NotEqual(firstPid, secondPid);
+    }
+
+    private static async Task<int> BackendPidAsync(AsyncServiceScope scope)
+    {
+        var session = scope.ServiceProvider.GetRequiredService<IDbSession>();
+        await using DbConnectionLease lease = await session.LeaseAsync();
+        return await lease.Connection.ExecuteScalarAsync<int>("SELECT pg_backend_pid()");
+    }
+
+    private async Task<int> CountAsync(string sql)
+    {
+        await using DbConnection connection = await Fixture.OpenAsync();
+        return await connection.ExecuteScalarAsync<int>(sql);
     }
 }

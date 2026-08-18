@@ -7,8 +7,8 @@ using Npgsql;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class ErrorTranslationTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class ErrorTranslationTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     [Fact]
     public async Task BrokenLquery_BecomesInvalidRequestException()

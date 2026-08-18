@@ -7,8 +7,8 @@ using GeoApi.Domain.ParameterObjects.Location;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class ClusterTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class ClusterTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     private static GetWindowedAndClusteredByGridParameters MoscowWindow(double gridSize = 0.01)
     {

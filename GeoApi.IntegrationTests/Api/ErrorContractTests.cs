@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class ErrorContractTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class ErrorContractTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     private async Task<int> CreateLocationAsync(double longitude, double latitude)
     {

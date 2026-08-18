@@ -4,8 +4,8 @@ using GeoApi.Domain.ParameterObjects.Resource;
 
 namespace GeoApi.IntegrationTests.Persistence;
 
-[Collection(PostgresCollection.Name)]
-public class BulkUnlinkTests(PostgresFixture fixture) : IntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class BulkUnlinkTests(GeoApiFixture fixture) : IntegrationTest(fixture)
 {
     [Fact]
     public async Task BulkUnlinkLocationsAsync_ReturnsRemovedIdsAndKeepsTheRest()

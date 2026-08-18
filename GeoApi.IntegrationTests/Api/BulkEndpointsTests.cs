@@ -3,8 +3,8 @@ using System.Text.Json;
 
 namespace GeoApi.IntegrationTests.Api;
 
-[Collection(PostgresCollection.Name)]
-public class BulkEndpointsTests(PostgresFixture fixture) : ApiIntegrationTest(fixture)
+[Collection(GeoApiCollection.Name)]
+public class BulkEndpointsTests(GeoApiFixture fixture) : ApiIntegrationTest(fixture)
 {
     [Fact]
     public async Task CreateLocationBatch_ReturnsIdsInInputOrderAndReusesRepeatedPoints()

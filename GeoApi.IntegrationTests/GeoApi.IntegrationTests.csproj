@@ -26,8 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\Migrations\Scripts\001_Initial\Up.sql">
-            <Link>Schema\Up.sql</Link>
+        <Content Include="..\Migrations\Scripts\**\Up.sql">
+            <Link>Schema\%(RecursiveDir)Up.sql</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
